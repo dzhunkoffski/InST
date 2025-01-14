@@ -1,24 +1,28 @@
+import os
 import subprocess
+import argparse
+import glob
+from pathlib import Path
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--content', type=str)
+    parser.add_argument('--embedding', type=str)
+    parser.add_argument('--device', type=int)
+    parser.add_argument('--style', type=str)
+    cfg = parser.parse_args()
+
     base_command = [
         "python", "inference.py",
-        "--content", "data/content_images",
-        "--device", "1",
-        "--embedding", "logs/train_styles2025-01-08T01-07-50_allstyles/checkpoints/embeddings.pt"
+        "--content", cfg.content,
+        "--device", str(cfg.device),
+        "--embedding", cfg.embedding
     ]
-    style_images = [
-        "data/sty/31.png", "data/sty/anime.jpg", "data/sty/chineseart.jpg",
-        "data/sty/lines.jpg", "data/sty/mosaic.jpg", "data/sty/picasso.jpg",
-        "data/sty/plastilin.jpg", "data/sty/reimbrandt.jpg", "data/sty/tomnjerry.jpg",
-        "data/sty/village.jpg"
-    ]
-    out_names = [
-        '31', 'anime', 'chineseart', 'lines', 'mosaic', 'picasso', 'plastilin',
-        'reimbrandt', 'tomnjerry', 'village'
-    ]
+    style_images = glob.glob(os.path.join(cfg.style, '**.jpg'))
 
     for i in range(len(style_images)):
-        command = base_command + ["--style", style_images[i]] + ["--run_name", 'all_'+out_names[i]]
+        out_name = Path(style_images[i]).stem
+        out_prefix = Path(style_images[i]).parts[-2]
+        command = base_command + ["--style", style_images[i]] + ["--run_name", f'{out_prefix}-{out_name}']
         print(f"********************************** Executing: {' '.join(command)}")
         subprocess.run(command)
