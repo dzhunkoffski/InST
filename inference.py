@@ -184,7 +184,8 @@ def main(
     return output
 
 def run(cfg):
-    torch.cuda.set_device(f'cuda:{cfg.device}')
+    if torch.cuda.is_available():
+        torch.cuda.set_device(f'cuda:{cfg.device}')
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
