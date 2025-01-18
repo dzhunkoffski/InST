@@ -16,7 +16,7 @@ if __name__ == '__main__':
     cfg = parser.parse_args()
 
     base_cmd = [
-        'python', 'subseq_inference.py',
+        'python', '-u', 'subseq_inference.py',
         '--content', cfg.content,
         '--device', str(cfg.device),
     ]
@@ -24,13 +24,16 @@ if __name__ == '__main__':
     print(f'======= FOUND {len(styles)} styles =======')
 
     for style in styles:
-        style_path = os.path.join(cfg.style, style)
-        emb_path = glob.glob(os.path.join(cfg.embeddings, f'{style}*'))[0]
-        emb_path = os.path.join(emb_path, 'checkpoints', 'embeddings.pt')
-        cmd = base_cmd + [
-            '--style', style_path,
-            '--embedding', emb_path
-        ]
-        subprocess.run(cmd)
-    
+        if len(glob.glob(os.path.join('outputs', f'{style}*'))):
+            print('----->', f'Found {style}, skip')
+        else:
+            style_path = os.path.join(cfg.style, style)
+            emb_path = glob.glob(os.path.join(cfg.embeddings, f'{style}*'))[0]
+            emb_path = os.path.join(emb_path, 'checkpoints', 'embeddings.pt')
+            cmd = base_cmd + [
+                '--style', style_path,
+                '--embedding', emb_path
+            ]
+            subprocess.run(cmd)
+
     print('+++++++ FINISH +++++++')
