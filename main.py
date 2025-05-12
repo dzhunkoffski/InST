@@ -21,10 +21,14 @@ from pytorch_lightning.utilities import rank_zero_info
 from ldm.data.base import Txt2ImgIterableBaseDataset
 from ldm.util import instantiate_from_config
 
-torch.cuda.set_device('cuda:1')
+if torch.cuda.is_available():
+    torch.cuda.set_device('cuda:0')
+# else:
+#     torch.set_default_device('cpu')
 
 def load_model_from_config(config, ckpt, verbose=False):
     print(f"Loading model from {ckpt}")
+
     pl_sd = torch.load(ckpt, map_location="cpu")
     sd = pl_sd["state_dict"]
     config.model.params.ckpt_path = ckpt
